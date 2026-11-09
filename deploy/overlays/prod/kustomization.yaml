@@ -5,7 +5,8 @@ resources:
   - ../../base
 images:
   - name: api
-    newTag: initial
+    newName: ghcr.io/excella1/plateforme-devops
+    newTag: 03e5ab14
 replicas:
   - name: api
     count: 2
