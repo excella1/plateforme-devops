@@ -1,0 +1,44 @@
+name: pipeline
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "app/**"
+permissions:
+  contents: write
+  packages: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Calcule le tag et le nom de l'image
+        run: |
+          echo "TAG=${GITHUB_SHA::8}" >> $GITHUB_ENV
+          echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+      - name: Construit et pousse l'image
+        uses: docker/build-push-action@v6
+        with:
+          context: app
+          push: true
+          tags: ${{ env.IMAGE }}:${{ env.TAG }}
+          build-args: |
+            VERSION=${{ env.TAG }}
+      - name: Écrit le tag dans l'overlay dev et pousse
+        run: |
+          cd deploy/overlays/dev
+          kustomize edit set image api=${IMAGE}:${TAG}
+          cd ../../..
+          git config user.name "pipeline-ci"
+          git config user.email "pipeline-ci@users.noreply.github.com"
+          git add deploy/overlays/dev/kustomization.yaml
+          git commit -m "Déploie ${TAG} en dev"
+          git push
