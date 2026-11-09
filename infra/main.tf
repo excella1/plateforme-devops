@@ -13,6 +13,7 @@ module "cluster" {
 module "argocd" {
   source        = "./modules/argocd"
   version_chart = var.version_argocd
+  depot         = var.depot
 }
 moved {
   from = kind_cluster.this
