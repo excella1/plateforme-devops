@@ -2,8 +2,9 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: dev
 resources:
-- ../../base
+  - ../../base
+  - api-secret-scelle.yaml
 images:
-- name: api
-  newName: ghcr.io/excella1/plateforme-devops
-  newTag: 03e5ab14
+  - name: api
+    newName: ghcr.io/excella1/plateforme-devops
+    newTag: 03e5ab14
